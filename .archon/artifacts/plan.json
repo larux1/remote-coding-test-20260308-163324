@@ -1,0 +1,103 @@
+{
+  "title": "US-0: Setup projet (scaffolding, CLAUDE.md, CI basique)",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Create CLAUDE.md",
+      "description": "Create the root CLAUDE.md file describing the project, tech stack, repository layout, coding conventions, and common commands for both backend and frontend.",
+      "acceptanceCriteria": [
+        "CLAUDE.md exists at repository root",
+        "Contains project description: bookmark manager with tags, single-user, no auth",
+        "Lists tech stack: FastAPI (Python 3.12), React/Vite (JS, Node 20), SQLite/SQLAlchemy (dev), PostgreSQL (prod)",
+        "Documents monorepo layout with backend/ and frontend/ directories",
+        "Documents coding conventions: Ruff for Python, ESLint for JS",
+        "Lists common commands per sub-project: dev server, test, lint, build"
+      ],
+      "files": [
+        "CLAUDE.md"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": 2,
+      "title": "Scaffold backend (FastAPI)",
+      "description": "Create the backend/ directory with a Python/FastAPI project structure. Includes pyproject.toml with dependencies and tool configs, a minimal FastAPI app with /health endpoint, and a test for the health endpoint.",
+      "acceptanceCriteria": [
+        "backend/pyproject.toml exists with project metadata, dependencies (fastapi, uvicorn[standard]), optional dev deps (pytest, httpx, ruff), ruff config (line-length=88), and pytest config",
+        "backend/app/__init__.py exists (package marker)",
+        "backend/app/main.py exists with FastAPI app and GET /health returning {\"status\": \"ok\"}",
+        "backend/tests/__init__.py exists (package marker)",
+        "backend/tests/test_health.py exists using TestClient to assert /health returns 200 and correct JSON body",
+        "Running `cd backend && pip install -e '.[dev]' && pytest` passes",
+        "Running `cd backend && ruff check . && ruff format --check .` passes"
+      ],
+      "files": [
+        "backend/pyproject.toml",
+        "backend/app/__init__.py",
+        "backend/app/main.py",
+        "backend/tests/__init__.py",
+        "backend/tests/test_health.py"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": 3,
+      "title": "Scaffold frontend (React/Vite)",
+      "description": "Create the frontend/ directory with a React/Vite project structure. Includes package.json with scripts and dependencies, Vite config, ESLint flat config, HTML entry point, minimal React app, and a component test.",
+      "acceptanceCriteria": [
+        "frontend/package.json exists with scripts (dev, build, preview, test, lint) and correct dependencies (react, react-dom) and devDependencies (vite, @vitejs/plugin-react, vitest, eslint, eslint-plugin-react, @testing-library/react, @testing-library/jest-dom, jsdom)",
+        "frontend/vite.config.js exists with React plugin and Vitest test environment (jsdom)",
+        "frontend/eslint.config.js exists using ESLint 9+ flat config format with react plugin",
+        "frontend/index.html exists as HTML entry point referencing src/main.jsx",
+        "frontend/src/main.jsx exists bootstrapping React app",
+        "frontend/src/App.jsx exists rendering a minimal component with the app name",
+        "frontend/tests/App.test.jsx exists rendering App and checking for text presence",
+        "Running `cd frontend && npm install && npm test` passes",
+        "Running `cd frontend && npm run lint` passes",
+        "Running `cd frontend && npm run build` passes"
+      ],
+      "files": [
+        "frontend/package.json",
+        "frontend/vite.config.js",
+        "frontend/eslint.config.js",
+        "frontend/index.html",
+        "frontend/src/main.jsx",
+        "frontend/src/App.jsx",
+        "frontend/tests/App.test.jsx"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": 4,
+      "title": "Create CI pipeline",
+      "description": "Create a GitHub Actions workflow that runs lint and tests for both backend and frontend on push and pull_request events. Two parallel jobs: backend (Python 3.12) and frontend (Node 20).",
+      "acceptanceCriteria": [
+        ".github/workflows/ci.yml exists and is valid YAML",
+        "Triggers on push and pull_request on all branches",
+        "Backend job uses Python 3.12, installs via pip install -e '.[dev]', runs ruff check, ruff format --check, and pytest",
+        "Frontend job uses Node 20, installs via npm ci, runs npm run lint and npm test",
+        "Both jobs run in parallel (no dependency between them)",
+        "Uses actions/setup-python and actions/setup-node with caching enabled"
+      ],
+      "files": [
+        ".github/workflows/ci.yml"
+      ],
+      "dependsOn": [2, 3]
+    },
+    {
+      "id": 5,
+      "title": "Update .gitignore",
+      "description": "Expand the existing .gitignore to cover both Python and Node stacks more thoroughly, plus common IDE directories.",
+      "acceptanceCriteria": [
+        ".gitignore includes Python entries: .ruff_cache/, *.egg-info/, .pytest_cache/, .venv/",
+        ".gitignore includes Node entries: build/, .vite/, coverage/",
+        ".gitignore includes IDE entries: .vscode/, .idea/",
+        "Existing entries (__pycache__/, *.py[cod], .env, venv/, node_modules/, dist/) are preserved"
+      ],
+      "files": [
+        ".gitignore"
+      ],
+      "dependsOn": []
+    }
+  ]
+}
