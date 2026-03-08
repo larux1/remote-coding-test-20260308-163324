@@ -1,0 +1,160 @@
+{
+  "title": "US-1: Créer un bookmark avec titre, URL et tags",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Merge issue-3 scaffolding into issue-4",
+      "description": "The issue-4 branch only has .gitignore and README.md. Merge the issue-3 branch to inherit the full project scaffolding (FastAPI backend, React frontend, CI pipeline, CLAUDE.md). Resolve any merge conflicts, keeping issue-3 content for new files and issue-4 content for .gitignore/README if conflicts arise.",
+      "acceptanceCriteria": [
+        "issue-3 is merged into issue-4 without errors",
+        "backend/app/main.py exists with /health endpoint",
+        "backend/pyproject.toml exists with fastapi and uvicorn deps",
+        "backend/tests/test_health.py exists",
+        "frontend/ directory exists with React/Vite scaffolding",
+        ".github/workflows/ci.yml exists",
+        "CLAUDE.md exists"
+      ],
+      "files": [
+        "backend/app/main.py",
+        "backend/pyproject.toml",
+        "backend/tests/test_health.py",
+        "frontend/",
+        ".github/workflows/ci.yml",
+        "CLAUDE.md"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": 2,
+      "title": "Add SQLAlchemy dependency",
+      "description": "Add sqlalchemy>=2.0 to the project dependencies in backend/pyproject.toml. Install backend dependencies to verify the dependency resolves correctly.",
+      "acceptanceCriteria": [
+        "sqlalchemy>=2.0 is listed in [project].dependencies in backend/pyproject.toml",
+        "pip install -e '.[dev]' succeeds in backend/"
+      ],
+      "files": [
+        "backend/pyproject.toml"
+      ],
+      "dependsOn": [1]
+    },
+    {
+      "id": 3,
+      "title": "Create database layer (database.py)",
+      "description": "Create backend/app/database.py with SQLAlchemy engine configuration, SessionLocal factory, and Base declarative base. Use sqlite:///./bookmarks.db as the default database URL. Provide a get_db dependency generator for FastAPI dependency injection.",
+      "acceptanceCriteria": [
+        "backend/app/database.py exists",
+        "SQLALCHEMY_DATABASE_URL is set to sqlite:///./bookmarks.db",
+        "Engine is created with connect_args={'check_same_thread': False} for SQLite",
+        "SessionLocal is a configured sessionmaker bound to the engine",
+        "Base is a declarative_base() instance",
+        "get_db() generator yields a session and closes it in finally block"
+      ],
+      "files": [
+        "backend/app/database.py"
+      ],
+      "dependsOn": [2]
+    },
+    {
+      "id": 4,
+      "title": "Create ORM models (models.py)",
+      "description": "Create backend/app/models.py with Bookmark model, Tag model, and bookmark_tags association table. Bookmark has id, url (unique), title, created_at, updated_at. Tag has id, name (unique). bookmark_tags is a many-to-many association with composite primary key (bookmark_id, tag_id).",
+      "acceptanceCriteria": [
+        "backend/app/models.py exists",
+        "Bookmark model has columns: id (PK), url (unique, not null), title (not null), created_at (server default), updated_at (server default)",
+        "Tag model has columns: id (PK), name (unique, not null)",
+        "bookmark_tags association table has bookmark_id (FK) and tag_id (FK) with composite PK",
+        "Bookmark has a 'tags' relationship to Tag via bookmark_tags",
+        "All models inherit from Base imported from database.py"
+      ],
+      "files": [
+        "backend/app/models.py"
+      ],
+      "dependsOn": [3]
+    },
+    {
+      "id": 5,
+      "title": "Create Pydantic schemas (schemas.py)",
+      "description": "Create backend/app/schemas.py with BookmarkCreate (request) and BookmarkResponse (response) Pydantic models. BookmarkCreate has url (str, required), title (str, required), tags (list[str], optional, default []). BookmarkResponse has id, url, title, tags (list[str]), created_at, updated_at with model_config for from_attributes.",
+      "acceptanceCriteria": [
+        "backend/app/schemas.py exists",
+        "BookmarkCreate schema validates url (required str), title (required str), tags (optional list[str] defaulting to [])",
+        "BookmarkResponse schema includes id, url, title, tags as list[str], created_at (datetime), updated_at (datetime)",
+        "BookmarkResponse has model_config with from_attributes=True for ORM compatibility"
+      ],
+      "files": [
+        "backend/app/schemas.py"
+      ],
+      "dependsOn": [3]
+    },
+    {
+      "id": 6,
+      "title": "Create bookmarks router with POST endpoint",
+      "description": "Create backend/app/routers/__init__.py and backend/app/routers/bookmarks.py. Implement POST /api/bookmarks endpoint that: creates a bookmark with url, title, and optional tags; uses get-or-create logic for tags (FR7, normalize tag names to lowercase/stripped); returns 201 with BookmarkResponse on success; returns 409 with detail message on duplicate URL (AC1.3); returns 422 automatically via Pydantic for missing required fields (AC1.4).",
+      "acceptanceCriteria": [
+        "backend/app/routers/__init__.py exists",
+        "backend/app/routers/bookmarks.py exists with APIRouter",
+        "POST /api/bookmarks creates a bookmark and returns 201 with BookmarkResponse body",
+        "Tags are get-or-created: existing tags are reused, new tags are created (FR7)",
+        "Tag names are normalized (lowercase, stripped) to prevent near-duplicates",
+        "Duplicate URL returns 409 with {\"detail\": \"A bookmark with this URL already exists\"}",
+        "Missing url or title returns 422 validation error (handled by FastAPI/Pydantic)",
+        "Bookmark created without tags returns empty tags list (AC1.2)"
+      ],
+      "files": [
+        "backend/app/routers/__init__.py",
+        "backend/app/routers/bookmarks.py"
+      ],
+      "dependsOn": [4, 5]
+    },
+    {
+      "id": 7,
+      "title": "Wire up router and DB init in main.py",
+      "description": "Modify backend/app/main.py to: import Base and engine from database.py; create all tables on startup using a lifespan context manager or startup event; include the bookmarks router. Add bookmarks.db to .gitignore.",
+      "acceptanceCriteria": [
+        "main.py imports and includes the bookmarks router",
+        "Database tables are created on application startup (Base.metadata.create_all)",
+        "/health endpoint still works unchanged",
+        "bookmarks.db is in .gitignore"
+      ],
+      "files": [
+        "backend/app/main.py",
+        ".gitignore"
+      ],
+      "dependsOn": [6]
+    },
+    {
+      "id": 8,
+      "title": "Write tests for bookmark creation",
+      "description": "Create backend/tests/conftest.py with test database fixtures (in-memory SQLite, session override, TestClient). Create backend/tests/test_bookmarks.py with tests covering all acceptance criteria: AC1.1 (create with tags), AC1.2 (create without tags), AC1.3 (duplicate URL → 409), AC1.4 (missing URL → 422). Also test FR7 (tags auto-created, existing tags reused).",
+      "acceptanceCriteria": [
+        "backend/tests/conftest.py exists with in-memory SQLite test DB, get_db override, TestClient fixture",
+        "backend/tests/test_bookmarks.py exists",
+        "test_create_bookmark_with_tags: POST with url, title, tags → 201, response has correct tags (AC1.1)",
+        "test_create_bookmark_without_tags: POST with url, title only → 201, tags is [] (AC1.2)",
+        "test_create_bookmark_duplicate_url: POST same URL twice → 409 with detail message (AC1.3)",
+        "test_create_bookmark_missing_url: POST without url → 422 (AC1.4)",
+        "test_create_bookmark_reuses_existing_tags: second bookmark with same tag reuses it, no duplicate tags in DB (FR7)",
+        "Existing test_health.py tests continue to pass"
+      ],
+      "files": [
+        "backend/tests/conftest.py",
+        "backend/tests/test_bookmarks.py"
+      ],
+      "dependsOn": [7]
+    },
+    {
+      "id": 9,
+      "title": "Run linting and all tests to verify",
+      "description": "Run ruff check and ruff format --check on backend code to ensure code style compliance. Run pytest to verify all tests pass (both existing health tests and new bookmark tests). Fix any issues found.",
+      "acceptanceCriteria": [
+        "ruff check backend/ passes with no errors",
+        "ruff format --check backend/ passes with no formatting issues",
+        "pytest backend/tests/ passes — all tests green",
+        "Existing health tests still pass",
+        "All new bookmark tests pass"
+      ],
+      "files": [],
+      "dependsOn": [8]
+    }
+  ]
+}
