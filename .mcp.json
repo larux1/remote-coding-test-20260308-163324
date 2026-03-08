@@ -1,0 +1,41 @@
+{
+  "mcpServers": {
+    "olaqin-ext-app-db": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "postgres://saleor:admin@saleor-postgres.postgres.database.azure.com:5432/olaqin_db?sslmode=require"
+      ]
+    },
+    "olaqin-ext-app-db-uat": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "postgres://saleor:admin@saleor-postgres-uat.postgres.database.azure.com:5432/olaqin_db?sslmode=require"
+      ]
+    },
+    "saleor-backend-db": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "postgres://saleor:admin@saleor-postgres.postgres.database.azure.com:5432/saleor?sslmode=require"
+      ]
+    },
+    "saleor-backend-db-uat": {
+      "command": "bunx",
+      "args": [
+        "@modelcontextprotocol/server-postgres",
+        "postgres://saleor:admin@saleor-postgres-uat.postgres.database.azure.com:5432/saleor?sslmode=require"
+      ]
+    },
+    "saleor-graphql-api-dev-azure": {
+      "command": "bunx",
+      "args": ["mcp-graphql"],
+      "env": {
+        "ENDPOINT": "https://saleor-backend.azurewebsites.net/graphql/",
+        "HEADERS": "{\"Authorization\":\"Bearer PtxIFYaarVrcHb8Y4CavPRcUWNL92U\"}",
+        "ALLOW_MUTATIONS": "true"
+      }
+    }
+  }
+}
