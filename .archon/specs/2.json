@@ -1,0 +1,84 @@
+{
+  "id": "manifest-2-20260308T163324Z",
+  "ticketNumber": "2",
+  "title": "Gestionnaire de liens favoris avec tags",
+  "description": "Application web mono-utilisateur de gestion de bookmarks avec système de tags. Backend FastAPI exposant une API REST documentée (OpenAPI), frontend React. Déploiement local via Docker Compose. Fonctionnalités MVP : CRUD bookmarks, gestion de tags (création automatique inline), filtrage par tag, recherche full-text (substring, case-insensitive) par titre. Import/export prévu en v2. Pas d'authentification ni de multi-utilisateur.",
+  "acceptanceCriteria": [
+    "AC0.1: Given le projet est initialisé, When je consulte le repo, Then un fichier CLAUDE.md décrivant le projet, les conventions et les commandes est présent",
+    "AC0.2: Given le projet est initialisé, When je consulte la structure, Then les répertoires backend (FastAPI) et frontend (React) sont en place avec leur scaffolding",
+    "AC0.3: Given le projet est initialisé, When je pousse du code, Then un pipeline CI basique (lint/test) s'exécute",
+    "AC1.1: Given l'utilisateur est sur la page principale, When il soumet un bookmark avec URL 'https://example.com', titre 'Example' et tags 'dev, tools', Then le bookmark est sauvegardé avec les tags associés",
+    "AC1.2: Given l'utilisateur crée un bookmark sans tags, When il soumet, Then le bookmark est sauvegardé sans tags",
+    "AC1.3: Given un bookmark avec URL 'https://example.com' existe déjà, When l'utilisateur tente de créer un autre bookmark avec la même URL, Then le système rejette la création et informe que l'URL existe déjà",
+    "AC1.4: Given l'utilisateur crée un bookmark, When il soumet sans fournir d'URL, Then le système rejette la création et indique que l'URL est requise",
+    "AC2.1: Given 3 bookmarks existent, When l'utilisateur ouvre la liste, Then les 3 bookmarks sont affichés avec titre, URL et tags",
+    "AC2.2: Given aucun bookmark n'existe, When l'utilisateur ouvre la liste, Then un message d'état vide est affiché",
+    "AC3.1: Given un bookmark 'Example' existe avec tag 'dev', When le titre est changé en 'New Example' et le tag 'tools' est ajouté, Then le bookmark est mis à jour avec titre 'New Example' et tags 'dev, tools'",
+    "AC3.2: Given un bookmark existe avec tags 'dev, tools', When tous les tags sont retirés, Then le bookmark est sauvegardé sans tags",
+    "AC4.1: Given un bookmark 'Example' existe, When il est supprimé, Then il est retiré de la liste et n'apparaît plus dans les résultats de recherche",
+    "AC5.1: Given des bookmarks taggés 'dev' et 'design' existent, When l'utilisateur filtre par tag 'dev', Then seuls les bookmarks taggés 'dev' sont affichés",
+    "AC5.2: Given aucun bookmark n'est taggé 'music', When l'utilisateur filtre par tag 'music', Then un résultat vide est affiché",
+    "AC6.1: Given un bookmark avec titre 'FastAPI Documentation' existe, When l'utilisateur recherche 'fastapi', Then le bookmark apparaît dans les résultats (case-insensitive, correspondance partielle)",
+    "AC6.2: Given des bookmarks 'React Guide' et 'React Hooks' existent, When l'utilisateur recherche 'React', Then les deux bookmarks apparaissent dans les résultats",
+    "AC7.1: Given des bookmarks avec tags 'dev', 'tools' existent, When l'utilisateur consulte la liste des tags, Then les tags 'dev' et 'tools' sont affichés sans doublons"
+  ],
+  "constraints": [
+    "C1: Backend Python/FastAPI",
+    "C2: Frontend JavaScript/React",
+    "C3: Déploiement via Docker Compose (local uniquement)",
+    "C4: Mono-utilisateur, pas d'authentification",
+    "C5: API REST avec documentation OpenAPI auto-générée par FastAPI",
+    "C6: Projet greenfield — structure monorepo avec backend/ et frontend/"
+  ],
+  "outOfScope": [
+    "Import/export de bookmarks (JSON ou autre format) — prévu pour v2",
+    "Authentification et gestion de comptes utilisateur",
+    "Support multi-utilisateur",
+    "Extension navigateur",
+    "Récupération automatique de métadonnées depuis l'URL",
+    "Tags hiérarchiques ou catégories imbriquées",
+    "Pagination côté serveur"
+  ],
+  "userStories": [
+    "US-0: En tant que développeur, je veux que la structure projet, le CLAUDE.md et un CI basique soient en place, afin de démarrer le développement sur des bases solides",
+    "US-1: En tant qu'utilisateur, je veux sauvegarder un nouveau bookmark avec une URL, un titre et des tags, afin de conserver des liens intéressants",
+    "US-2: En tant qu'utilisateur, je veux voir la liste de tous mes bookmarks, afin de parcourir et accéder à mes liens sauvegardés",
+    "US-3: En tant qu'utilisateur, je veux modifier le titre, l'URL ou les tags d'un bookmark existant, afin de garder mes bookmarks à jour",
+    "US-4: En tant qu'utilisateur, je veux supprimer un bookmark, afin de retirer un lien dont je n'ai plus besoin",
+    "US-5: En tant qu'utilisateur, je veux filtrer mes bookmarks par tag, afin de retrouver rapidement les liens d'un sujet donné",
+    "US-6: En tant qu'utilisateur, je veux rechercher mes bookmarks par titre en full-text (substring, case-insensitive), afin de trouver un lien spécifique par son nom",
+    "US-7: En tant qu'utilisateur, je veux voir la liste de tous les tags existants, afin de parcourir les sujets et filtrer mes bookmarks"
+  ],
+  "functionalRequirements": [
+    "FR1: L'utilisateur peut créer un bookmark en fournissant une URL, un titre et optionnellement des tags",
+    "FR2: L'utilisateur peut voir la liste de tous ses bookmarks",
+    "FR3: L'utilisateur peut modifier le titre, l'URL et les tags d'un bookmark existant",
+    "FR4: L'utilisateur peut supprimer un bookmark",
+    "FR5: L'utilisateur peut associer un ou plusieurs tags à un bookmark lors de la création ou modification",
+    "FR6: L'utilisateur peut voir la liste de tous les tags existants",
+    "FR7: Le système crée automatiquement un tag lorsqu'il est utilisé pour la première fois sur un bookmark",
+    "FR8: L'utilisateur peut filtrer les bookmarks par tag",
+    "FR9: L'utilisateur peut rechercher les bookmarks par titre en full-text (substring, case-insensitive)"
+  ],
+  "nonFunctionalRequirements": [
+    "NFR1: Performance — les réponses API doivent être retournées en moins de 500ms pour les opérations courantes",
+    "NFR2: Déploiement — l'application doit être déployable localement via un seul 'docker compose up'",
+    "NFR3: Persistance — les données doivent persister entre les redémarrages (volume Docker ou fichier DB)",
+    "NFR4: Compatibilité — l'interface web doit fonctionner sur les navigateurs modernes (Chrome, Firefox, Edge)",
+    "NFR5: Maintenabilité — le backend expose une API REST documentée (OpenAPI/Swagger auto-généré par FastAPI)"
+  ],
+  "implementationOrder": [
+    "US-0: Setup projet — scaffolding backend/ (FastAPI) et frontend/ (React), CLAUDE.md, CI basique",
+    "US-1: Créer un bookmark avec tags (CRUD bookmark + association tags, création inline)",
+    "US-2: Consulter la liste des bookmarks (affichage avec tags)",
+    "US-7: Voir la liste des tags disponibles",
+    "US-3: Modifier un bookmark (édition titre, URL, tags)",
+    "US-4: Supprimer un bookmark",
+    "US-5: Filtrer les bookmarks par tag",
+    "US-6: Rechercher les bookmarks par titre (full-text, substring, case-insensitive)"
+  ],
+  "complexity": "moyen",
+  "validatedAt": "2026-03-08T16:09:38Z",
+  "validationScore": 90,
+  "validationDecision": "GO — specification validated and ready for implementation"
+}
