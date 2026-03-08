@@ -22,3 +22,10 @@ Workflow archon-dev:investigate completed. Steps executed: dev-investigate
 **Date:** 2026-03-08T16:22:06.054Z
 
 Workflow archon-dev:plan completed. Steps executed: dev-plan
+
+---
+## Run: 1ba0b1c4-2207-478e-9316-467b9c4b841d
+**Workflow:** archon-dev:gate-check
+**Date:** 2026-03-08T16:23:07.934Z
+
+Workflow archon-dev:gate-check completed. Steps executed: dev-gate-check
